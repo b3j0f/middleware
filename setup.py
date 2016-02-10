@@ -58,7 +58,9 @@ KEYWORDS = [
     'runtime', 'abstract', 'common'
 ]
 
-DEPENDENCIES = [str(ir.req) for ir in parse_requirements('requirements.txt')]
+DEPENDENCIES = [
+    str(ir.req) for ir in parse_requirements('requirements.txt', session=False)
+]
 
 DESCRIPTION = 'Middleware utilities library'
 

@@ -28,9 +28,9 @@
 an URL.
 """
 
-__all__ = ['URLMiddleware', 'fromurl']
+__all__ = ['URLMiddleware', 'fromurl', 'tourl']
 
-from six.moves.urllib.parse import urlparse
+from six.moves.urllib.parse import urlparse, urlunparse, ParseResult
 
 from .core import get
 from .cls import Middleware
@@ -103,3 +103,25 @@ def fromurl(url):
     )
 
     return result
+
+
+def tourl(urlmiddleware):
+    """Convert an urlmiddleware to an url.
+
+    :param URLMiddleware urlmiddleware: object with url properties such as
+        initialized by the ``fromurl`` function.
+    :rtype: str"""
+
+    return urlunparse(
+        ParseResult(
+            scheme=urlmiddleware.scheme,
+            host=urlmiddleware.hostname,
+            port=urlmiddleware.port,
+            username=urlmiddleware.user,
+            password=urlmiddleware.pwd,
+            path=urlmiddleware.path,
+            query=urlmiddleware.query,
+            params=urlmiddleware.params,
+            fragment=urlmiddleware.fragment
+        )
+    )

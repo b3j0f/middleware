@@ -26,7 +26,7 @@
 
 """Core module which register middleware callable objects to protocols.
 
-A protocol is a string value such as database, rpc, etc."""
+A protocol is a string value such as database, rpc, mongo, influxdb, etc."""
 
 __all__ = ['register', 'unregister', 'get']
 

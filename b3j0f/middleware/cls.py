@@ -66,7 +66,10 @@ class Middleware(object):
         result = set()
 
         for baseclass in baseclasses:
-            if issubclass(baseclass, Middleware):
+            if hasattr(baseclass, '__protocols__'):
                 result |= set(baseclass.__protocols__)
+
+            else:
+                break
 
         return result

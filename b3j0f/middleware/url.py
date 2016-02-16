@@ -30,7 +30,11 @@ an URL.
 
 __all__ = ['URLMiddleware', 'fromurl', 'tourl']
 
-from six.moves.urllib.parse import urlparse, urlunparse, ParseResult
+from six.moves.urllib.parse import urlsplit, urlunsplit, SplitResult, parse_qs
+
+from inspect import getmembers, isroutine
+
+from functools import reduce
 
 from .core import get
 from .cls import Middleware
@@ -43,18 +47,16 @@ class URLMiddleware(Middleware):
 
     def __init__(
             self, scheme, host=DEFAULT_HOST, port=None, user=None, pwd=None,
-            path='', query='', params='', fragment='',
-            *args, **kwargs
+            path=None, fragment='', *args, **kwargs
     ):
         """
-        :param str scheme: url scheme which corresponds to one of this protocl.
+        :param str scheme: url scheme which corresponds to one of this protocol.
         :param str host: host name.
         :param int port: port value.
         :param str user: user name.
         :param str pwd: user password.
-        :param str path: url path.
-        :param str query: url query.
-        :param
+        :param list path: url path.
+        :param str fragment: urlfragment.
         """
 
         super(URLMiddleware, self).__init__(*args, **kwargs)
@@ -65,8 +67,6 @@ class URLMiddleware(Middleware):
         self.user = user
         self.pwd = pwd
         self.path = path
-        self.query = query
-        self.params = params
         self.fragment = fragment
 
 
@@ -82,46 +82,63 @@ def fromurl(url):
     - an username: user name.
     - a password: a password value.
     - a path: url path.
-    - a query: url query.
-    - params: url params.
-    - fragment: fragment.
+    - a fragment: url fragment.
 
-    :return: middleware initialized with url properties.
-    """
+    And additional parameters given by the url queries.
 
-    parseduri = urlparse(url)
+    :return: middleware initialized with url properties."""
+
+    parseduri = urlsplit(url)
 
     protocol = parseduri.scheme
 
     middleware = get(protocol)
 
+    query = parse_qs(parseduri.query)
+
+    path = parseduri.path
+
+    if path:
+        path = path[1:]
+        path = parseduri.path.split('/')
+
     result = middleware(
         host=parseduri.hostname, port=parseduri.port,
         user=parseduri.username, pwd=parseduri.password,
-        path=parseduri.path, query=parseduri.query, params=parseduri.params,
-        fragment=parseduri.fragment
+        path=path, fragment=parseduri.fragment, **query
     )
 
     return result
 
 
-def tourl(urlmiddleware):
+def tourl(urlmiddleware, **kwargs):
     """Convert an urlmiddleware to an url.
 
     :param URLMiddleware urlmiddleware: object with url properties such as
         initialized by the ``fromurl`` function.
+    :param dict kwargs: additional middleware params.
     :rtype: str"""
 
-    return urlunparse(
-        ParseResult(
+    for name, member in getmembers(urlmiddleware, lambda m: not isroutine(m)):
+
+        if name[0] != '_':
+            kwargs[name] = member
+
+    path = urlmiddleware.path
+
+    if path:
+        path = reduce(lambda x, y: '{0}/{1}'.format(x, y), path)
+        path = '/{0}'.format(path)
+
+    return urlunsplit(
+        SplitResult(
             scheme=urlmiddleware.scheme,
             host=urlmiddleware.hostname,
             port=urlmiddleware.port,
             username=urlmiddleware.user,
             password=urlmiddleware.pwd,
-            path=urlmiddleware.path,
-            query=urlmiddleware.query,
-            params=urlmiddleware.params,
-            fragment=urlmiddleware.fragment
+            path=path,
+            fragment=urlmiddleware.fragment,
+            **kwargs
         )
     )

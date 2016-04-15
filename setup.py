@@ -33,8 +33,6 @@ from os.path import abspath, dirname, join
 
 from re import compile as re_compile, S as re_S
 
-from pip.req import parse_requirements
-
 NAME = 'b3j0f.middleware'  # library name
 
 NAMEPATH = NAME.replace('.', '/')
@@ -58,9 +56,9 @@ KEYWORDS = [
     'runtime', 'abstract', 'common'
 ]
 
-DEPENDENCIES = [
-    str(ir.req) for ir in parse_requirements('requirements.txt', session=False)
-]
+DEPENDENCIES = []
+with open(join(BASEPATH, 'requirements.txt')) as f:
+    DEPENDENCIES = list(line for line in f.readlines())
 
 DESCRIPTION = 'Middleware utilities library'
 

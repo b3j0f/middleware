@@ -1,2 +1,1 @@
-include README.rst LICENSE
-prune docs
+include README.rst LICENSE requirements.txt changelog.rst

@@ -25,8 +25,7 @@
 # --------------------------------------------------------------------
 
 """Module dedicated to ease registration and instanciation of middleware from
-an URL.
-"""
+an URL."""
 
 __all__ = ['URLMiddleware', 'fromurl', 'tourl']
 
@@ -34,7 +33,7 @@ from six.moves.urllib.parse import urlsplit, urlunsplit, SplitResult, parse_qs
 
 from inspect import getmembers, isroutine
 
-from functools import reduce
+from six.moves import reduce
 
 from .core import get
 from .cls import Middleware

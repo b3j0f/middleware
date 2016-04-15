@@ -77,7 +77,7 @@ setup(
     url=URL,
     license='MIT License',
     classifiers=[
-        'Development Status :: 2 - Alpha',
+        'Development Status :: 2 - Pre-Alpha',
         'License :: OSI Approved :: MIT License',
         'Natural Language :: French',
         'Operating System :: OS Independent',

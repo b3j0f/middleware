@@ -35,8 +35,11 @@ from inspect import getmembers, isroutine
 
 from six.moves import reduce
 
-from .core import get
+from .core import getmcallers
 from .cls import Middleware
+
+PROTOCOL_MSEPARATOR = '-'  #: multi protocol separator character.
+PROTOCOL_SSEPARATOR = '+'  #: successive protocol separator character.
 
 
 class URLMiddleware(Middleware):
@@ -69,13 +72,16 @@ class URLMiddleware(Middleware):
         self.fragment = fragment
 
 
-def fromurl(url):
+_CACHED_MIDDLEWARE = {}
+
+
+def fromurl(url, cache=True):
     """Get a middleware from an URL.
 
     The middleware is choosen from the scheme and might accept such as callable
     parameters:
 
-    - a scheme: registered protocol.
+    - a scheme: registered protocols separated with the '-' character.
     - an host: url hostname.
     - a port: url port.
     - an username: user name.
@@ -85,27 +91,47 @@ def fromurl(url):
 
     And additional parameters given by the url queries.
 
+    :param str url: url from where instanciate a middleware.
+    :param bool cache: if True (default), return old registered middleware
+        instance with the same url.
+
+    :rtype: list
     :return: middleware initialized with url properties."""
 
-    parseduri = urlsplit(url)
+    if cache and url in _CACHED_MIDDLEWARE:
+        result = _CACHED_MIDDLEWARE[url]
 
-    protocol = parseduri.scheme
+    else:
+        result = []
 
-    middleware = get(protocol)
+        parseduri = urlsplit(url)
 
-    query = parse_qs(parseduri.query)
+        protocols = parseduri.scheme.split(PROTOCOL_SSEPARATOR)
 
-    path = parseduri.path
+        for protocol in protocols:
 
-    if path:
-        path = path[1:]
-        path = parseduri.path.split('/')
+            mprotocols = protocol.split(PROTOCOL_MSEPARATOR)
 
-    result = middleware(
-        host=parseduri.hostname, port=parseduri.port,
-        user=parseduri.username, pwd=parseduri.password,
-        path=path, fragment=parseduri.fragment, **query
-    )
+            mcaller = getmcallers(mprotocols)[0]
+
+            query = parse_qs(parseduri.query)
+
+            path = parseduri.path
+
+            if path:
+                path = path[1:]
+                path = parseduri.path.split('/')
+
+            middleware = mcaller(
+                host=parseduri.hostname, port=parseduri.port,
+                user=parseduri.username, pwd=parseduri.password,
+                path=path, fragment=parseduri.fragment, **query
+            )
+
+            result.append(middleware)
+
+        if cache:
+            _CACHED_MIDDLEWARE[url] = result
 
     return result
 
@@ -126,8 +152,7 @@ def tourl(urlmiddleware, **kwargs):
     path = urlmiddleware.path
 
     if path:
-        path = reduce(lambda x, y: '{0}/{1}'.format(x, y), path)
-        path = '/{0}'.format(path)
+        path = '/'.join('' + path)
 
     return urlunsplit(
         SplitResult(

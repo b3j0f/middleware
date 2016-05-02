@@ -28,9 +28,9 @@
 
 A protocol is a string value such as database, rpc, mongo, influxdb, etc."""
 
-__all__ = ['register', 'unregister', 'get']
+__all__ = ['register', 'unregister', 'getmcallers']
 
-#: registry of middleware classes by protocol names.
+#: registry of middleware callers by protocol names.
 _MIDDLEWARES_BY_PROTOCOLS = {}
 
 
@@ -108,14 +108,34 @@ def unregister(middlewares=None, protocols=None):
                     del _MIDDLEWARES_BY_PROTOCOLS[protocol]
 
 
-def get(protocol):
-    """Get a middleware class from input protocol.
+def getmcallers(protocols):
+    """Get middleware callers from input protocols.
 
-    :raises: ValueError if protocol does not exist.
+    :param list protocols: protocol names.
+    :raises: ValueError if protocols are not registered.
     """
 
-    try:
-        return _MIDDLEWARES_BY_PROTOCOLS[protocol][0]
+    result = None
 
-    except (KeyError, IndexError):
-        raise ValueError('Protocol {0} not found.'.format(protocol))
+    for protocol in protocols:
+        try:
+            pmiddlewares = _MIDDLEWARES_BY_PROTOCOLS[protocol]
+
+        except (KeyError, IndexError):
+            result = False
+            break
+
+        else:
+            if result is None:
+                result = set(result)
+
+            else:
+                result &= pmiddlewares
+
+            if not result:
+                break
+
+    if not result:
+        raise ValueError('{0} middleware not found.'.format(protocols))
+
+    return result

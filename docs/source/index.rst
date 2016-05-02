@@ -12,17 +12,7 @@ b3j0f.middleware: Utilities for Python middleware
    :maxdepth: 1
 
    changelog
+   modules
 
-.. toctree::
-   :hidden:
-
-   sources/modules
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
 
 .. include:: ../../README.rst

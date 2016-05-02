@@ -27,11 +27,11 @@
 """b3j0f.middleware package."""
 
 __all__ = [
-    '__version__', 'register', 'get', 'unregister',
+    '__version__', 'register', 'getmcallers', 'unregister',
     'Middleware', 'URLMiddleware', 'fromurl'
 ]
 
 from .version import __version__
-from .core import register, unregister, get
+from .core import register, unregister, getmcallers
 from .cls import Middleware
 from .url import URLMiddleware, fromurl

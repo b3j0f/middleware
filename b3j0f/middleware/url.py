@@ -29,7 +29,9 @@ an URL."""
 
 __all__ = ['URLMiddleware', 'fromurl', 'tourl']
 
-from six.moves.urllib.parse import urlsplit, urlunsplit, SplitResult, parse_qs
+from six.moves.urllib.parse import (
+    urlsplit, urlunsplit, SplitResult, parse_qs, urlencode
+)
 
 from inspect import getmembers, isroutine
 
@@ -78,8 +80,8 @@ _CACHED_MIDDLEWARE = {}
 def fromurl(url, cache=True):
     """Get list of middleware from an URL.
 
-    The list of middleware is choosen from the scheme and might accept such as callable
-    parameters:
+    The list of middleware is choosen from the scheme and might accept such as
+    callable parameters:
 
     - a scheme: registered protocols separated with the '-' character.
     - an host: url hostname.
@@ -151,7 +153,9 @@ def tourl(urlmiddleware, **kwargs):
 
     for name, member in getmembers(urlmiddleware, lambda m: not isroutine(m)):
 
-        if name[0] != '_':
+        if name[0] != '_' and name not in [
+            'scheme', 'host', 'port', 'user', 'pwd', 'path', 'fragment'
+        ]:
             kwargs[name] = member
 
     path = urlmiddleware.path
@@ -159,15 +163,17 @@ def tourl(urlmiddleware, **kwargs):
     if path:
         path = '/'.join([''] + path)
 
+    query = urlencode(kwargs)
+
     return urlunsplit(
         SplitResult(
             scheme=urlmiddleware.scheme,
-            host=urlmiddleware.host,
+            hostname=urlmiddleware.host,
             port=urlmiddleware.port,
             username=urlmiddleware.user,
             password=urlmiddleware.pwd,
             path=path,
             fragment=urlmiddleware.fragment,
-            **kwargs
+            query=query
         )
     )

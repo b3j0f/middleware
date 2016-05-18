@@ -162,7 +162,7 @@ def tourl(urlmiddleware, **kwargs):
     return urlunsplit(
         SplitResult(
             scheme=urlmiddleware.scheme,
-            host=urlmiddleware.hostname,
+            host=urlmiddleware.host,
             port=urlmiddleware.port,
             username=urlmiddleware.user,
             password=urlmiddleware.pwd,

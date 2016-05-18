@@ -1,6 +1,11 @@
 ChangeLog
 =========
 
+0.0.7 (2016/05/02)
+------------------
+
+- fix the function fromurl when path is given.
+
 0.0.6 (2016/05/02)
 ------------------
 

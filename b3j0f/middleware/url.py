@@ -33,8 +33,6 @@ from six.moves.urllib.parse import urlsplit, urlunsplit, SplitResult, parse_qs
 
 from inspect import getmembers, isroutine
 
-from six.moves import reduce
-
 from b3j0f.utils.iterable import first
 
 from .core import getmcallers
@@ -78,9 +76,9 @@ _CACHED_MIDDLEWARE = {}
 
 
 def fromurl(url, cache=True):
-    """Get a middleware from an URL.
+    """Get list of middleware from an URL.
 
-    The middleware is choosen from the scheme and might accept such as callable
+    The list of middleware is choosen from the scheme and might accept such as callable
     parameters:
 
     - a scheme: registered protocols separated with the '-' character.
@@ -96,6 +94,10 @@ def fromurl(url, cache=True):
     :param str url: url from where instanciate a middleware.
     :param bool cache: if True (default), return old registered middleware
         instance with the same url.
+
+    .. example:
+
+        git+ssh://pseudo:pwd@website/
 
     :rtype: list
     :return: middleware initialized with url properties."""
@@ -155,7 +157,7 @@ def tourl(urlmiddleware, **kwargs):
     path = urlmiddleware.path
 
     if path:
-        path = '/'.join('' + path)
+        path = '/'.join([''] + path)
 
     return urlunsplit(
         SplitResult(

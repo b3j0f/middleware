@@ -1,6 +1,11 @@
 ChangeLog
 =========
 
+0.0.6 (2016/05/02)
+------------------
+
+- fix the function fromurl in adding the parameter scheme in the middleware caller constructor.
+
 0.0.5 (2016/05/02)
 ------------------
 

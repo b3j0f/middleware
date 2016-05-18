@@ -125,6 +125,7 @@ def fromurl(url, cache=True):
                 path = parseduri.path.split('/')
 
             middleware = mcaller(
+                scheme=protocol,
                 host=parseduri.hostname, port=parseduri.port,
                 user=parseduri.username, pwd=parseduri.password,
                 path=path, fragment=parseduri.fragment, **query

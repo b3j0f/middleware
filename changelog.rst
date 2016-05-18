@@ -1,6 +1,11 @@
 ChangeLog
 =========
 
+0.0.5 (2016/05/02)
+------------------
+
+- fix the function fromurl when using the function b3j0f.utils.iterable.first.
+
 0.0.4 (2016/05/02)
 ------------------
 

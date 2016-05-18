@@ -35,6 +35,8 @@ from inspect import getmembers, isroutine
 
 from six.moves import reduce
 
+from b3j0f.utils.iterable import first
+
 from .core import getmcallers
 from .cls import Middleware
 
@@ -112,7 +114,7 @@ def fromurl(url, cache=True):
 
             mprotocols = protocol.split(PROTOCOL_MSEPARATOR)
 
-            mcaller = getmcallers(mprotocols)[0]
+            mcaller = first(getmcallers(mprotocols))
 
             query = parse_qs(parseduri.query)
 

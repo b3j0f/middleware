@@ -127,7 +127,7 @@ def getmcallers(protocols):
 
         else:
             if result is None:
-                result = set(result)
+                result = set(pmiddlewares)
 
             else:
                 result &= pmiddlewares

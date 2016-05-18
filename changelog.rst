@@ -1,6 +1,11 @@
 ChangeLog
 =========
 
+0.0.4 (2016/05/02)
+------------------
+
+- fix the function getmcallers at initialization of the first iteration of found middlewares.
+
 0.0.3 (2016/05/02)
 ------------------
 

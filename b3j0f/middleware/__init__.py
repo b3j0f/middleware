@@ -34,4 +34,4 @@ __all__ = [
 from .version import __version__
 from .core import register, unregister, getmcallers
 from .cls import Middleware
-from .url import URLMiddleware, fromurl
+from .url import URLMiddleware, fromurl, tourl

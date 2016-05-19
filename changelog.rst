@@ -1,6 +1,11 @@
 ChangeLog
 =========
 
+0.0.10 (2016/05/02)
+------------------
+
+- fix the function tourl with right splitresult parameters.
+
 0.0.9 (2016/05/02)
 ------------------
 

@@ -165,13 +165,25 @@ def tourl(urlmiddleware, **kwargs):
 
     query = urlencode(kwargs)
 
+    netloc = '{0}{1}{2}'.format(
+        (
+            '{0}{1}@'.format(
+                urlmiddleware.user if urlmiddleware.user else '',
+                ':{0}'.format(urlmiddleware.pwd) if urlmiddleware.pwd else ''
+            )
+        ) if urlmiddleware.user else '',
+        urlmiddleware.host,
+        ':{0}'.format(urlmiddleware.port) if urlmiddleware.port else ''
+    )
+
+    if urlmiddleware.user:
+        if urlmiddleware.pwd:
+            netloc = '{0}:{1}@{2}'
+
     return urlunsplit(
         SplitResult(
             scheme=urlmiddleware.scheme,
-            hostname=urlmiddleware.host,
-            port=urlmiddleware.port,
-            username=urlmiddleware.user,
-            password=urlmiddleware.pwd,
+            netloc=netloc,
             path=path,
             fragment=urlmiddleware.fragment,
             query=query

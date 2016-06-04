@@ -43,7 +43,7 @@ class _MetaMiddleware(type):
 
         super(_MetaMiddleware, cls).__init__(name, bases, attrs)
 
-        register(protocols=cls.protocols(), middleware=cls)
+        register(protocols=cls.protocols(), middlewares=cls)
 
 
 @add_metaclass(_MetaMiddleware)

@@ -30,14 +30,18 @@ A protocol is a string value such as database, rpc, mongo, influxdb, etc."""
 
 __all__ = ['register', 'unregister', 'getmcallers']
 
+from collections import Iterable
+
+from six import string_types
+
 #: registry of middleware callers by protocol names.
 _MIDDLEWARES_BY_PROTOCOLS = {}
 
 
-def register(protocols, middleware=None):
-    """Register a middleware with input protocols.
+def register(protocols, middlewares=None):
+    """Register middlewares with input protocols.
 
-    A middleware is a callable object, such as a socket connection.
+    Middleware are callable objects, such as a socket connection.
 
     Could be also used such as a decorator.
 
@@ -53,54 +57,77 @@ def register(protocols, middleware=None):
 
         #are sames.
 
-    :param list protocols: protocols to register.
-    :param callable middleware: callable middleware."""
+    :param str(s) protocols: protocols to register.
+    :param callable(s) middlewares: callable middleware objects."""
 
+    if isinstance(protocols, string_types):
+        protocols = [protocols]
 
-    def _registercls(middleware):
+    def _registercls(middlewares):
         """In case of a decorator, this function register input callable
-        middleware object with input protocols.
+        middleware objects with input protocols.
 
-        :param callable middleware: middleware to register."""
+        :param list middlewares: callable middleware objects to register."""
 
-        for protocol in protocols:
-            middlewares = _MIDDLEWARES_BY_PROTOCOLS.setdefault(protocol, [])
-            middlewares.append(middleware)
+        result = middlewares
 
-        return middleware
+        if not isinstance(middlewares, Iterable):
+            middlewares = [middlewares]
 
-    if middleware is None:  # in case of a decorator
+        for middleware in middlewares:
+
+            if not callable(middleware):
+                raise TypeError('Middleware {0} is not callable'.format(
+                    middleware)
+                )
+
+            for protocol in protocols:
+                _MIDDLEWARES_BY_PROTOCOLS.setdefault(protocol, set()).add(
+                    middleware
+                )
+
+        return result
+
+    if middlewares is None:  # in case of a decorator
         return _registercls
 
     else:
-        _registercls(middleware=middleware)
+        _registercls(middlewares=middlewares)
 
 
 def unregister(middlewares=None, protocols=None):
     """Unregister middlewares.
 
-    :param list middlewares: middlewares to unregister. Default all.
-    :param list protocols: protocols to unregister. Default all."""
+    :param callable(s) middlewares: middlewares to unregister. Default all.
+    :param str(s) protocols: protocols to unregister. Default all."""
 
     if (middlewares, protocols) == (None, None):
         _MIDDLEWARES_BY_PROTOCOLS.clear()
 
     else:
+
         if middlewares is not None:
+            if callable(middlewares):
+                middlewares = [middlewares]
+
             middlewares = set(middlewares)
 
         if protocols is None:
-            protocols = list(_MIDDLEWARES_BY_PROTOCOLS.keys())
+            protocols = list(_MIDDLEWARES_BY_PROTOCOLS)
+
+        elif isinstance(protocols, string_types):
+            protocols = [protocols]
 
         for protocol in protocols:
-
-            _middlewares = _MIDDLEWARES_BY_PROTOCOLS[protocol]
 
             if middlewares is None:
                 del _MIDDLEWARES_BY_PROTOCOLS[protocol]
 
             else:
-                _middlewares = list(set(_middlewares) & middlewares)
+                _middlewares = _MIDDLEWARES_BY_PROTOCOLS[protocol]
+
+                _middlewares -= middlewares
+
                 if _middlewares:
                     _MIDDLEWARES_BY_PROTOCOLS[protocol] = _middlewares
 
@@ -111,22 +138,26 @@ def unregister(middlewares=None, protocols=None):
 def getmcallers(protocols):
     """Get middleware callers from input protocols.
 
-    :param list protocols: protocol names.
+    :param str(s) protocols: protocol names.
     :raises: ValueError if protocols are not registered.
+    :rtype: set
     """
 
-    result = None
+    result = set()
+
+    if isinstance(protocols, string_types):
+        protocols = [protocols]
 
     for protocol in protocols:
         try:
             pmiddlewares = _MIDDLEWARES_BY_PROTOCOLS[protocol]
 
         except (KeyError, IndexError):
-            result = False
+            result = set()
             break
 
         else:
-            if result is None:
+            if not result:
                 result = set(pmiddlewares)
 
             else:
@@ -137,5 +168,33 @@ def getmcallers(protocols):
 
     if not result:
         raise ValueError('{0} middleware not found.'.format(protocols))
+
+    return result
+
+
+def getprotocols(middlewares=None):
+    """Get all protocols matching exclusively all input middlewares.
+
+    :param callable(s) middlewares: group of middleware objects from where get
+        protocols. If None, get all protocols.
+
+    :return: protocols used by all middlewares, or all protocols if middlewares
+        is not given.
+    :rtype: set"""
+
+    result = set()
+
+    if middlewares is None:
+        result = set(_MIDDLEWARES_BY_PROTOCOLS)
+
+    else:
+        if not isinstance(middlewares, Iterable):
+            middlewares = [middlewares]
+
+        middlewares = set(middlewares)
+        for key in _MIDDLEWARES_BY_PROTOCOLS:
+
+            if (middlewares & _MIDDLEWARES_BY_PROTOCOLS[key]) == middlewares:
+                result.add(key)
 
     return result

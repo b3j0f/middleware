@@ -4,7 +4,7 @@
 # --------------------------------------------------------------------
 # The MIT License (MIT)
 #
-# Copyright (c) 2017 Jonathan Labéjof <jonathan.labejof@gmail.com>
+# Copyright (c) 2016 Jonathan Labéjof <jonathan.labejof@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -35,15 +35,36 @@ from ..core import register, unregister, getmcallers, getprotocols
 class RegisterTest(UTCase):
     """Test for the functions register and unregister."""
 
-    def test_protocols(self):
+    def test_decorator(self):
 
-        def a(): pass
-        def ab(): pass
-        def bc(): pass
+        @register('a')
+        def exa():
+            """"""
+            pass
 
-        register('a', a)
-        register(['a', 'b'], ab)
-        register(['b', 'c'], bc)
+        @register(['a', 'b'])
+        def exab():
+            pass
+
+        @register(['b', 'c'])
+        def exbc():
+            pass
+
+        self._test(exa, exab, exbc)
+
+    def test_func(self):
+
+        exa = lambda: None
+        exab = lambda: None
+        exbc = lambda: None
+
+        register('a', exa)
+        register(['a', 'b'], exab)
+        register(['b', 'c'], exbc)
+
+        self._test(exa, exab, exbc)
+
+    def _test(self, a, ab, bc):
 
         with self.assertRaises(TypeError):
             register('a', 1)

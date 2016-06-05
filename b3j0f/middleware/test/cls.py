@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 # --------------------------------------------------------------------
@@ -24,14 +25,38 @@
 # SOFTWARE.
 # --------------------------------------------------------------------
 
-"""b3j0f.middleware package."""
+from b3j0f.utils.ut import UTCase
 
-__all__ = [
-    '__version__', 'register', 'getmcallers', 'unregister',
-    'Middleware', 'URLMiddleware', 'fromurl'
-]
+from unittest import main
 
-from .version import __version__
-from .core import register, unregister, getmcallers
-from .cls import Middleware
-from .url import URLMiddleware, fromurl, getmcallerswp
+from ..core import getprotocols
+from ..cls import Middleware
+
+
+class ClsTest(UTCase):
+    """Test for the functions register and unregister."""
+
+    def test_cls(self):
+
+        class A(Middleware):
+
+            __protocols__ = ['a']
+
+        class BC(A):
+
+            __protocols__ = ['b', 'c']
+
+        def assertcls(cls, protocols):
+
+            clsprotocols = cls.protocols()
+            self.assertEqual(clsprotocols, set(protocols))
+
+            clsprotocols = getprotocols(cls)
+            self.assertEqual(clsprotocols, set(protocols))
+
+        assertcls(A, 'a')
+        assertcls(BC, ['a', 'b', 'c'])
+
+
+if __name__ == '__main__':
+    main()

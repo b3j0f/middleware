@@ -78,8 +78,8 @@ def register(protocols, middlewares=None):
 
             if not callable(middleware):
                 raise TypeError('Middleware {0} is not callable'.format(
-                    middleware)
-                )
+                    middleware
+                ))
 
             for protocol in protocols:
                 _MIDDLEWARES_BY_PROTOCOLS.setdefault(protocol, set()).add(

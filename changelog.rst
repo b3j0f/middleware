@@ -1,6 +1,13 @@
 ChangeLog
 =========
 
+0.0.11 (2016/06/05)
+------------------
+
+- add UTs.
+- add URLMiddleware.url property.
+- add chain attribute in the function fromurl.
+
 0.0.10 (2016/05/02)
 ------------------
 

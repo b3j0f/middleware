@@ -29,12 +29,16 @@ from b3j0f.utils.ut import UTCase
 
 from unittest import main
 
-from ..core import getprotocols
+from ..core import getprotocols, unregister
 from ..cls import Middleware
 
 
 class ClsTest(UTCase):
     """Test for the functions register and unregister."""
+
+    def setUp(self):
+
+        unregister()
 
     def test_cls(self):
 
@@ -56,6 +60,10 @@ class ClsTest(UTCase):
 
         assertcls(A, 'a')
         assertcls(BC, ['a', 'b', 'c'])
+
+    def tearDown(self):
+
+        unregister()
 
 
 if __name__ == '__main__':

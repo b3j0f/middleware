@@ -35,6 +35,14 @@ from ..core import register, unregister, getmcallers, getprotocols
 class RegisterTest(UTCase):
     """Test for the functions register and unregister."""
 
+    def setUp(self):
+
+        unregister()
+
+    def tearDown(self):
+
+        unregister()
+
     def test_decorator(self):
 
         @register('a')
@@ -69,11 +77,11 @@ class RegisterTest(UTCase):
         with self.assertRaises(TypeError):
             register('a', 1)
 
-        mcallers = getmcallers(['a'])
+        mcallers = getmcallers('a')
         self.assertEqual(mcallers, set([a, ab]))
-        mcallers = getmcallers(['b'])
+        mcallers = getmcallers('b')
         self.assertEqual(mcallers, set([ab, bc]))
-        mcallers = getmcallers(['c'])
+        mcallers = getmcallers('c')
         self.assertEqual(mcallers, set([bc]))
         mcallers = getmcallers(['a', 'b'])
         self.assertEqual(mcallers, set([ab]))
